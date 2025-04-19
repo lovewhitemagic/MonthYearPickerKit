@@ -5,6 +5,7 @@ struct YearMonthPickerSheet: View {
     let currentMonth: Int
     let yearRange: ClosedRange<Int>
     let onConfirm: (_ year: Int, _ month: Int) -> Void
+    let onChange: (_ year: Int, _ month: Int) -> Void
 
     @State private var tempYear: Int
     @State private var tempMonth: Int
@@ -15,12 +16,14 @@ struct YearMonthPickerSheet: View {
         currentYear: Int,
         currentMonth: Int,
         yearRange: ClosedRange<Int> = 2000...2100,
-        onConfirm: @escaping (_ year: Int, _ month: Int) -> Void
+        onConfirm: @escaping (_ year: Int, _ month: Int) -> Void,
+        onChange: @escaping (_ year: Int, _ month: Int) -> Void
     ) {
         self.currentYear = currentYear
         self.currentMonth = currentMonth
         self.yearRange = yearRange
         self.onConfirm = onConfirm
+        self.onChange = onChange
         _tempYear = State(initialValue: currentYear)
         _tempMonth = State(initialValue: currentMonth)
     }
@@ -45,21 +48,33 @@ struct YearMonthPickerSheet: View {
             .padding(.horizontal)
 
             HStack(spacing: 16) {
-                Picker("", selection: $tempYear) {
+                Picker("", selection: Binding(
+                    get: { tempYear },
+                    set: { newValue in
+                        tempYear = newValue
+                        onChange(newValue, tempMonth)
+                    }
+                )) {
                     ForEach(yearRange, id: \.self) { year in
                         Text(String(format: "%d", year)).tag(year)
                     }
                 }
                 .pickerStyle(.wheel)
-                .frame(width: 140) // ✅ 固定宽度
+                .frame(width: 140)
 
-                Picker("", selection: $tempMonth) {
+                Picker("", selection: Binding(
+                    get: { tempMonth },
+                    set: { newValue in
+                        tempMonth = newValue
+                        onChange(tempYear, newValue)
+                    }
+                )) {
                     ForEach(months, id: \.self) { month in
                         Text(String(format: "%02d", month)).tag(month)
                     }
                 }
                 .pickerStyle(.wheel)
-                .frame(width: 140) // ✅ 固定宽度
+                .frame(width: 140)
             }
             .frame(height: 180)
         }

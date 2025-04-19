@@ -18,7 +18,6 @@ public struct MonthYearPicker: View {
         self.onChange = onChange
     }
 
-
     public var body: some View {
         Button {
             isPresented = true
@@ -36,6 +35,10 @@ public struct MonthYearPicker: View {
                     year = newYear
                     month = newMonth
                     isPresented = false
+                },
+                onChange: { newYear, newMonth in
+                    year = newYear
+                    month = newMonth
                     onChange?(newYear, newMonth)
                 }
             )
